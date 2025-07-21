@@ -1,20 +1,16 @@
-import http.server
-import socketserver
+import socket
 
-PORT = 8000
+# Create a TCP socket
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-class CustomHandler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/hello':
-            # Respond with a custom message for /hello
-            self.send_response(200)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write(b"<h1>Hello, World!</h1>")
-        else:
-            # Default behavior for other paths
-            super().do_GET()
+# Allow port reuse to avoid "Address already in use" errors
+server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
-    print(f"Serving at port {PORT}")
-    httpd.serve_forever()
+# Bind to host and port
+host = 'localhost'
+port = 8080
+server_socket.bind((host, port))
+
+# Listen for incoming connections (queue up to 5)
+server_socket.listen(5)
+print(f"Server running at http://{host}:{port}")
